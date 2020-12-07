@@ -12,20 +12,17 @@ logging.basicConfig(level=logging.DEBUG,
 def server_run():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        # print(utils.get_internal_ip())
         sock.bind((utils.get_internal_ip(), config.server_port))
     except socket.error as e:
         logging.error("socket create error: %s" % e)
         sys.exit(1)
-    sock.listen(5)
+    sock.listen(10)
     while True:
         conn, address = sock.accept()
         msg = conn.recv(1024)
         if msg:
             logging.debug('received from %s: %s' % (address, msg))
             transfer.Server_transfer(conn, msg).start()
-            
-
 
 if __name__ == "__main__":
     server_run()

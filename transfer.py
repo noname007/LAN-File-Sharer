@@ -35,7 +35,7 @@ class Server_transfer(threading.Thread):
 			try:
 				fo = open(self.content, 'rb')
 			except FileNotFoundError as e:
-				raise "File not found"
+				raise Exception("File not found")
 			while True:
 				filedata = fo.read(1024)
 				if not filedata:
@@ -46,15 +46,8 @@ class Server_transfer(threading.Thread):
 		# 传输目录信息 or 初始化时传输共享文件的目录
 		## 目前以这样的方式传输, folde/file, 为了安全不包含全部路径
 		elif os.path.isdir(self.content) or self.content == "*":
-			# path = os.path.join(config.shared_folder, self.content.decode())
 			shared_files = {}
 			if self.content == "*":
-				# shared_folder = [os.path.join(config.shared_folder, shared_file) for shared_file in os.listdir(config.shared_folder)]
-				# for root, dirs, files in os.walk(config.shared_folder):
-				# 	for each_file in files:
-				# 		path = os.path.join(root, each_file)
-				# 		# print(path.strip(config.shared_folder+os.path.sep))
-				# 		shared_files.append(path.replace(config.shared_folder+os.path.sep, "").split(os.path.sep))
 				for p in os.listdir(config.shared_folder):
 					path = os.path.join(config.shared_folder, p)
 					if os.path.isfile(path):
@@ -79,7 +72,7 @@ class Server_transfer(threading.Thread):
 					self.connection.send(send_content[x:x+1024])
 			logging.debug("server has sent %s to %s" % (self.content, self.connection.getpeername()))
 		else:
-			raise "send data is not a dir or file"
+			raise Exception("send data is not a dir or file")
 	
 	
 '''
@@ -141,7 +134,7 @@ class Client_transfer(threading.Thread):
 	
 	def getPostgres(self):
 		if not self.save_path:
-			raise "before getting postgress, save path shouldn't be None"
+			raise Exception("before getting postgress, save path shouldn't be None")
 		return self.postgress
 
 if __name__ == "__main__":

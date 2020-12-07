@@ -61,7 +61,7 @@ class MyThread(threading.Thread):
         self.ip = ip
 
     def run(self):
-        self.result = scan_port(self.ip, config.server_port)
+        self.result = scan_port(self.ip, config.scan_port)
 
     def get_result(self):
         return self.result
@@ -74,7 +74,6 @@ def scan_lan():
     local_ip = get_internal_ip()
     t = '.'.join(local_ip.split('.')[:3])
     temp = [t+'.'+str(x) for x in list(range(256))]
-    # print(temp)
     threads = [MyThread(ip) for ip in temp]
     for t in threads:
         t.start()
@@ -86,8 +85,6 @@ def scan_lan():
             alive_addr.append(x)
     logging.debug("scanned alive ip address " + str(alive_addr))
     return alive_addr
-
-
 
 
 

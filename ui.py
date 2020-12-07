@@ -13,9 +13,7 @@ import os
 class Ui_MainWindow(QObject):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(400, 300)
-        # self.progress_bar = MProgress()
-        # self.progress_bar.setVisible(False)
+        MainWindow.resize(800, 600)
         self.current_ip = ""
         self.internal_ip = utils.get_internal_ip()
         self.centralWidget = QtWidgets.QWidget(MainWindow)
@@ -46,6 +44,7 @@ class Ui_MainWindow(QObject):
         self.host_model = QStandardItemModel(self.file_listview)
 
         self.init_host()
+
         # self.init_file_list()
 
         self.file_listview.expanded.connect(self.init_file_list)
@@ -62,19 +61,8 @@ class Ui_MainWindow(QObject):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.fresh_button.setText(_translate("MainWindow", "fresh"))
-        self.back_button.setText(_translate("MainWindow", "back"))
-        self.forward_button.setText(_translate("MainWindow", "forward"))
-        self.download_button.setText(_translate("MainWindow", "download"))
 
-    def init_host(self):
-        self.host_model.clear()
-        effective_ip = utils.scan_lan()
-        for each_ip in effective_ip:
-            self.host_model.appendRow(QStandardItem(each_ip))
+
 
     def init_file_list(self, signal):
         my_sender = self.sender()
@@ -84,6 +72,7 @@ class Ui_MainWindow(QObject):
             self.file_model.clear()
             self.file_model.setHorizontalHeaderLabels(["路径"])
             transfer_thread = transfer.Client_transfer((self.current_ip, config.server_port), "*")
+
             transfer_thread.start()
             # time.sleep(config.sleep_time)
             while not transfer_thread.recvd_content:
@@ -96,7 +85,9 @@ class Ui_MainWindow(QObject):
                     i = QStandardItem(key)
                     i.appendRow(QStandardItem(""))
                     self.file_model.appendRow(i)
+
         else:
+
             item = self.file_model.itemFromIndex(signal)
             item.removeRows(0, item.rowCount())
             parent_item = item.parent()
@@ -120,7 +111,6 @@ class Ui_MainWindow(QObject):
                     i.appendRow(QStandardItem(""))
                     item.appendRow(i)
 
-
     def download_file(self, signal):
         item = self.file_model.itemFromIndex(signal)
         parent_item = item.parent()
@@ -131,57 +121,4 @@ class Ui_MainWindow(QObject):
         if item.rowCount() == 0:
             transfer_thread = transfer.Client_transfer((self.current_ip, config.server_port), json.dumps(path_list), os.path.join(config.default_save_folder, path_list[-1]))
             transfer_thread.start()
-            # progress_bar = MProgress(transfer_thread)
-            # progress_bar.setVisible(False)
-            # progress_bar.show()
-
-
-# class MProgress(QWidget):
-#     def __init__(self, download_thread=None):
-#         super(MProgress, self).__init__()
-#         self.download_thread = download_thread
-#         self.initUI()
-#
-#     def initUI(self):
-#         self.pbar = QProgressBar(self)
-#         self.pbar.setGeometry(30, 40, 200, 25)
-#         self.setGeometry(300, 300, 280, 170)
-#         self.setWindowTitle('下载进度')
-#         postgress = self.download_thread.getPostgres()
-#         if postgress == 1:
-#             self.pbar.setValue(0)
-#             self.setVisible(False)
-#         else:
-#             self.pbar.setValue(postgress)
-
-
-# class MProgress(QWidget):
-#     def __init__(self):
-#         super(MProgress, self).__init__()
-#         self.initUI()
-#     def initUI(self):
-#         self.pbar = QProgressBar(self)
-#         self.pbar.setGeometry(30, 40, 200, 25)
-#         self.btn = QtWidgets.QPushButton('Start', self)
-#         self.btn.move(40, 80)
-#         self.btn.clicked.connect(self.doAction)
-#         self.timer = QBasicTimer()
-#         self.step = 0
-#         self.setGeometry(300, 300, 280, 170)
-#         self.setWindowTitle('QtGui.QProgressBar')
-#         self.show()
-#     def timerEvent(self, e):
-#         if self.step >= 100:
-#             self.timer.stop()
-#             self.btn.setText('Finished')
-#             return
-#         self.step = self.step + 1
-#         self.pbar.setValue(self.step)
-#     def doAction(self):
-#         if self.timer.isActive():
-#             self.timer.stop()
-#             self.btn.setText('Start')
-#         else:
-#             self.timer.start(100, self)
-#             self.btn.setText('Stop')
 
