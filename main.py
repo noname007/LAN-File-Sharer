@@ -44,9 +44,9 @@ def get_files(each_ip, rel_path, file_dir_list):
 
 		path_list = [os.path.join(rel_path, key)]
 
-		logging.debug("{} {}", key == 'download', key)
+		# logging.debug(key)
 
-		if value and (not key == 'download'):
+		if value:
 			transfer_thread = transfer.Client_transfer((each_ip, config.scan_port), json.dumps(path_list))
 			transfer_thread.start()
 
@@ -57,11 +57,15 @@ def get_files(each_ip, rel_path, file_dir_list):
 
 			dir = os.path.join(config.default_save_folder, rel_path, key)
 
-			logging.debug(dir)
+			logging.debug("dir:" + dir)
+			is_shared_folad = rel_path.find("download") == 0
 
-			if not os.path.isdir(dir):
-				os.mkdir(dir)
-			get_files(each_ip, os.path.join(rel_path, key), data)
+			logging.debug("is shared_fold ? " + str(is_shared_folad))
+
+			if not is_shared_folad:
+				if not os.path.isdir(dir):
+					os.mkdir(dir)
+				get_files(each_ip, os.path.join(rel_path, key), data)
 
 		else:
 			transfer_thread = transfer.Client_transfer((each_ip, config.scan_port), json.dumps(path_list),
@@ -72,9 +76,8 @@ def get_files(each_ip, rel_path, file_dir_list):
 def main():
 	init()
 	threading.Thread(target=server.server_run).start()
-
-	effective_ip = utils.scan_lan()
 	while True:
+		effective_ip = utils.scan_lan()
 		for each_ip in effective_ip:
 			print(each_ip + ":" + str(config.scan_port))
 			transfer_thread = transfer.Client_transfer((each_ip, config.scan_port), "*")
