@@ -7,6 +7,7 @@ from optparse import OptionParser
 import logging
 import transfer
 import json
+import time
 
 logging.basicConfig(level=logging.DEBUG,
                 format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
@@ -26,7 +27,7 @@ def init():
 	if options.sharefolder:
 		config.shared_folder = options.sharefolder
 	if options.scan_port:
-		config.scan_port = options.scan_port
+		config.scan_port = int( options.scan_port )
 	if options.scan_server:
 		config.scan_server = options.scan_server
 	if not os.path.exists(config.default_save_folder):
@@ -43,7 +44,9 @@ def get_files(each_ip, rel_path, file_dir_list):
 
 		path_list = [os.path.join(rel_path, key)]
 
-		if value and not key == 'download':
+		logging.debug("{} {}", key == 'download', key)
+
+		if value and (not key == 'download'):
 			transfer_thread = transfer.Client_transfer((each_ip, config.scan_port), json.dumps(path_list))
 			transfer_thread.start()
 
@@ -71,16 +74,19 @@ def main():
 	threading.Thread(target=server.server_run).start()
 
 	effective_ip = utils.scan_lan()
-	for each_ip in effective_ip:
-		print(each_ip + ":" + str(config.scan_port))
-		transfer_thread = transfer.Client_transfer((each_ip, config.scan_port), "*")
-		transfer_thread.start()
-		# time.sleep(config.sleep_time)
-		while not transfer_thread.recvd_content:
-			pass
-		data = json.loads(transfer_thread.recvd_content)
+	while True:
+		for each_ip in effective_ip:
+			print(each_ip + ":" + str(config.scan_port))
+			transfer_thread = transfer.Client_transfer((each_ip, config.scan_port), "*")
+			transfer_thread.start()
+			# time.sleep(config.sleep_time)
+			while not transfer_thread.recvd_content:
+				pass
+			data = json.loads(transfer_thread.recvd_content)
 
-		get_files(each_ip, '', data)
+			get_files(each_ip, '', data)
+		time.sleep(3)
+
 
 
 if __name__ == "__main__":

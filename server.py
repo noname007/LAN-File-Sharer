@@ -23,7 +23,6 @@ def server_run():
         if msg:
             logging.debug('received from %s: %s' % (address, msg))
             transfer.Server_transfer(conn, msg).start()
-
 if __name__ == "__main__":
     server_run()
 
